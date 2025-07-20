@@ -1,0 +1,6 @@
+.env
+venv/
+data.pkl
+__pycache__/
+docs/*
+!docs/README.md

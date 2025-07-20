@@ -1,0 +1,6 @@
+openai
+faiss-cpu
+streamlit
+PyPDF2
+python-dotenv
+numpy
