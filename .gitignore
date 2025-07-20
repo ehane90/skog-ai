@@ -4,3 +4,33 @@ data.pkl
 __pycache__/
 docs/*
 !docs/README.md
+🔧 Förslag på förbättrad version:
+gitignore
+Kopiera
+Redigera
+# Miljöfiler och API-nycklar
+.env
+
+# Python virtual environment
+venv/
+
+# Datafiler
+data.pkl
+*.pkl
+
+# Python bytecode och cache
+__pycache__/
+*.py[cod]
+
+# Dokumentation (exkludera allt utom README)
+docs/*
+!docs/README.md
+
+# Streamlit och loggar
+.streamlit/
+*.log
+
+# MacOS och editorfiler
+.DS_Store
+.vscode/
+.idea/

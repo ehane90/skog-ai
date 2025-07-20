@@ -16,8 +16,20 @@ st.set_page_config(page_title="Skog-AI", page_icon="🌲")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Ladda FAISS-index och metadata
+# Ladda index och data
 with open("data.pkl", "rb") as f:
     index, chunks, sources = pickle.load(f)
+
+# Visa hur många chunks som laddats
+st.sidebar.markdown(f"📄 Antal dokumentdelar (chunks): **{len(chunks)}**")
+
+# Visa antal unika källfiler
+st.sidebar.markdown(f"📁 Unika källfiler: **{len(set(sources))}**")
+
+# Lista upp till 10 källfiler
+st.sidebar.markdown("📂 Exempel på källfiler:")
+for s in list(set(sources))[:10]:
+    st.sidebar.markdown(f"- `{s}`")
 
 # Funktion för att skapa embedding av fråga
 def get_embedding(text):
