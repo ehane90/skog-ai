@@ -5,3 +5,4 @@ PyPDF2
 python-dotenv
 numpy
 python-docx
+openpyxl>=3.0.0
