@@ -38,53 +38,43 @@ streamlit run app.py --server.port 8501 --server.enableCORS false
 ```
 
 
+##📄 Lägga till nya dokument
+För att lägga till nya dokument till AI-appen (t.ex. 
+skogsbruksplaner, bokslut eller andra interna filer):
 
-##  Lägga till nya dokument
-För att lägga till fler dokument till appen (t.ex. 
-skogsbruksplaner, bokslut eller andra filer som ska indexeras):
-
-1. Kopiera dokument till docs/-mappen
-Appen stödjer följande format:
-
-PDF (.pdf)
-
-Word (.docx)
-
-Excel (.xls, .xlsx)
-
-Du kan manuellt kopiera in filerna till docs/-mappen, eller 
-använda det medföljande scriptet:
+1. Kör det medföljande uppladdningsskriptet
+Använd upload_docs.py för att ladda upp alla dokument i en lokal 
+mapp till servern:
 
 bash
-Kopiera
-Redigera
-python upload_docs.py /sökväg/till/dokument
-Scriptet:
+./upload_docs.py /sökväg/till/dokument
+Detta skript:
 
-laddar upp alla filer från en vald mapp
+Läser in alla .pdf, .docx, .xls, .xlsx-filer från den angivna 
+mappen
 
-hoppar över filer som redan finns i docs/ (baserat på filnamn)
+Hoppar över filer som redan finns i docs/ (baserat på filnamn)
 
-2. Kör om indexeringen
-Efter att du lagt till nya dokument, kör om index_docs.py för att 
-uppdatera embeddings:
+Kopierar de nya filerna till servern via scp
+
+Du kan konfigurera upload_docs.py så att din server-IP, sökvägar 
+och SSH-nyckel är förifyllda – praktiskt om du laddar upp ofta.
+
+2. Indexera dokumenten på servern
+Logga in på servern (via SSH eller tmux) och kör:
 
 bash
-Kopiera
-Redigera
+cd skog-ai
 source venv/bin/activate
 python index_docs.py
-Detta genererar en uppdaterad data.pkl med alla chunkade och 
-indexerade dokument.
 
-3. Starta om appen (om nödvändigt)
-Om du kör appen via tmux, eller med startscriptet, starta om för 
-att ladda in det nya data.pkl:
+Detta uppdaterar data.pkl med de nya dokumentens chunkar och 
+embeddings.
+
+3. Starta om appen
+Om appen körs i bakgrunden (t.ex. via tmux), starta om den för att 
+ladda in nya dokument:
 
 bash
-Kopiera
-Redigera
 ./start-skog-ai.sh
-Appen är nu uppdaterad med de nya dokumenten.
-
 

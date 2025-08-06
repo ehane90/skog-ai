@@ -1,42 +1,65 @@
 import os
-import hashlib
 import shutil
+import sys
+import subprocess
 
-# Ange källmapp (lokalt) och mål (tillfällig lokal mapp för uppladdning)
-SOURCE_FOLDER = "/Users/erikhane/Documents/skogsdokument"
-TARGET_FOLDER = "/Users/erikhane/Documents/upload_to_server"
+# 🛠️ KONFIGURATION
+REMOTE_HOST = "ubuntu@207.127.92.131"
+REMOTE_PATH = "/home/ubuntu/skog-ai/docs/"
+SSH_KEY_PATH = os.path.expanduser("~/.ssh/oracle-skog-ai.pem")
 
-# Skapa mål om det inte finns
-os.makedirs(TARGET_FOLDER, exist_ok=True)
+def list_existing_files(remote_path):
+    """Hämtar lista över redan uppladdade filer på servern via 
+SSH"""
+    try:
+        result = subprocess.check_output([
+            "ssh", "-i", SSH_KEY_PATH, f"{REMOTE_HOST}",
+            f"ls {remote_path}"
+        ]).decode("utf-8").splitlines()
+        return set(result)
+    except subprocess.CalledProcessError:
+        print("⚠️ Kunde inte hämta lista över existerande 
+dokument.")
+        return set()
 
-def file_hash(path):
-    """Returnerar SHA256-hash för att identifiera dubbletter 
-baserat på innehåll."""
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        h.update(f.read())
-    return h.hexdigest()
+def main(local_folder):
+    if not os.path.isdir(local_folder):
+        print(f"❌ Mappen finns inte: {local_folder}")
+        return
 
-# Hämta befintliga filhashar i mål
-existing_hashes = set()
-for f in os.listdir(TARGET_FOLDER):
-    full_path = os.path.join(TARGET_FOLDER, f)
-    if os.path.isfile(full_path):
-        existing_hashes.add(file_hash(full_path))
+    allowed_exts = (".pdf", ".docx", ".xls", ".xlsx")
+    local_files = [f for f in os.listdir(local_folder) if 
+f.lower().endswith(allowed_exts)]
+    if not local_files:
+        print("📂 Inga giltiga filer hittades att ladda upp.")
+        return
 
-# Kopiera nya filer
-new_files = 0
-for f in os.listdir(SOURCE_FOLDER):
-    full_path = os.path.join(SOURCE_FOLDER, f)
-    if not os.path.isfile(full_path):
-        continue
-    h = file_hash(full_path)
-    if h in existing_hashes:
-        print(f"🔁 Dubblett, hoppar över: {f}")
-        continue
-    shutil.copy2(full_path, os.path.join(TARGET_FOLDER, f))
-    new_files += 1
-    print(f"✅ Lagt till: {f}")
+    print("📡 Hämtar lista över befintliga dokument på 
+servern...")
+    existing_remote = list_existing_files(REMOTE_PATH)
 
-print(f"\n📦 Totalt {new_files} nya filer redo att laddas upp.")
+    for f in local_files:
+        if f in existing_remote:
+            print(f"⏭️  Hoppar över (redan finns på server): {f}")
+            continue
+
+        full_path = os.path.join(local_folder, f)
+        print(f"⬆️  Laddar upp: {f}")
+        try:
+            subprocess.check_call([
+                "scp", "-i", SSH_KEY_PATH,
+                full_path,
+                f"{REMOTE_HOST}:{REMOTE_PATH}"
+            ])
+        except subprocess.CalledProcessError:
+            print(f"⚠️  Kunde inte ladda upp: {f}")
+
+    print("✅ Klart!")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Användning: python upload_docs.py 
+/sökväg/till/mapp")
+    else:
+        main(sys.argv[1])
 
