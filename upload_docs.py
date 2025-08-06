@@ -18,8 +18,7 @@ SSH"""
         ]).decode("utf-8").splitlines()
         return set(result)
     except subprocess.CalledProcessError:
-        print("⚠️ Kunde inte hämta lista över existerande 
-dokument.")
+        print("⚠️ Kunde inte hämta lista över existerand dokument.")
         return set()
 
 def main(local_folder):
@@ -34,8 +33,7 @@ f.lower().endswith(allowed_exts)]
         print("📂 Inga giltiga filer hittades att ladda upp.")
         return
 
-    print("📡 Hämtar lista över befintliga dokument på 
-servern...")
+    print("📡 Hämtar lista över befintliga dokument på servern...")
     existing_remote = list_existing_files(REMOTE_PATH)
 
     for f in local_files:
@@ -58,8 +56,7 @@ servern...")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Användning: python upload_docs.py 
-/sökväg/till/mapp")
+        print("Användning: python upload_docs.py /sökväg/till/mapp")
     else:
         main(sys.argv[1])
 
